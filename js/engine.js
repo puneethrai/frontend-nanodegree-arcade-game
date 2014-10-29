@@ -1,4 +1,5 @@
-var Engine = (function(global) {
+/*global Resources,allEnemies,player*/
+var Engine = (function (global) {
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
@@ -19,7 +20,7 @@ var Engine = (function(global) {
 
         lastTime = now;
         win.requestAnimationFrame(main);
-    };
+    }
 
     function init() {
 
@@ -30,25 +31,31 @@ var Engine = (function(global) {
 
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
+        checkCollisions();
     }
 
     function updateEntities(dt) {
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.update(dt);
         });
         player.update();
     }
-
+    function checkCollisions () {
+        allEnemies.forEach(function (enemy) {
+            if (enemy.getCurrentPos()[0] === player.getCurrentPos()[0] && enemy.getCurrentPos()[1] === player.getCurrentPos()[1]) {
+                player.reset();
+            }
+        });
+    }
     function render() {
         var rowImages = [
-                'images/water-block.png',
-                'images/stone-block.png',
-                'images/stone-block.png',
-                'images/stone-block.png',
-                'images/grass-block.png',
-                'images/grass-block.png'
-            ],
+            'images/water-block.png',
+            'images/stone-block.png',
+            'images/stone-block.png',
+            'images/stone-block.png',
+            'images/grass-block.png',
+            'images/grass-block.png'
+        ],
             numRows = 6,
             numCols = 5,
             row, col;
@@ -63,7 +70,7 @@ var Engine = (function(global) {
     }
 
     function renderEntities() {
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.render();
         });
         player.render();
@@ -71,6 +78,8 @@ var Engine = (function(global) {
 
     function reset() {
         // noop
+        Resources.playerWon = 0;
+        Resources.playerLost = 0;
     }
 
     Resources.load([
