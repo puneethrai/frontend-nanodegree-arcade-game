@@ -120,9 +120,10 @@ if (window.navigator.msPointerEnabled) {
     this.eventTouchmove = "touchmove";
     this.eventTouchend = "touchend";
 }
+window.onload = function() {
 // Respond to swipe events
 var touchStartClientX, touchStartClientY;
-var gameContainer = document.getElementsByTagName("body")[0];
+var gameContainer = document.getElementsByTagName("canvas")[0];
 
 gameContainer.addEventListener(this.eventTouchstart, function (event) {
     if ((!window.navigator.msPointerEnabled && event.touches.length > 1) ||
@@ -177,3 +178,4 @@ gameContainer.addEventListener(this.eventTouchend, function (event) {
 var targetIsInput = function (event) {
     return event.target.tagName.toLowerCase() === "input";
 };
+}
