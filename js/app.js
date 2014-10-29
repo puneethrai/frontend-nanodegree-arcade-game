@@ -16,10 +16,10 @@ Enemy.prototype.update = function (dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    var randomRate = Resources.getRandomInt(0,101/2);
-    this.x = this.x + randomRate * dt * Math.pow(2,this.y/63)  >= 505 ? 0 : this.x + randomRate * dt * Math.pow(2,this.y/63);
-    if(this.x === 0){
-        this.y = this.y/63 >= 3 ? 63 : this.y+63;
+    var randomRate = Resources.getRandomInt(0, 101 / 2);
+    this.x = this.x + randomRate * dt * Math.pow(2, this.y / 63) >= 505 ? 0 : this.x + randomRate * dt * Math.pow(2, this.y / 63);
+    if (this.x === 0) {
+        this.y = this.y / 63 >= 3 ? 63 : this.y + 63;
     }
 }
 
@@ -43,36 +43,36 @@ Enemy.prototype.getCurrentPos = function () {
 // Place the player object in a variable called player
 var allEnemies = [];
 for (var rows = 3; rows >= 1; rows--) {
-    allEnemies.push(new Enemy(0, rows*83-20));
+    allEnemies.push(new Enemy(0, rows * 83 - 20));
 };
-var Player = function (){
+var Player = function () {
     this.sprite = 'images/char-boy.png';
     this.reset(true);
 }
 // Update the player's position, required method for game
 // Parameter: dt, a time delta between ticks
 Player.prototype.update = function () {
-    if(this.y === 0) {
+    if (this.y === 0) {
         //player won
         this.reset();
     }
 }
-Player.prototype.getCurrentPos = function () {    
+Player.prototype.getCurrentPos = function () {
     this.boxX = Math.round(this.x / 101);
     this.boxY = Math.round(this.y / 83);
-    return [this.boxX,this.boxY];
+    return [this.boxX, this.boxY];
 }
 Player.prototype.reset = function (fresh) {
-    if(!fresh){
-        if(this.getCurrentPos()[1] === 0) {
+    if (!fresh) {
+        if (this.getCurrentPos()[1] === 0) {
             Resources.playerWon++;
         } else {
             Resources.playerLost++;
         }
     }
-    this.x = 101*2;
-    this.y = (606-171);
-    if(document.getElementById("WON")) {
+    this.x = 101 * 2;
+    this.y = (606 - 171);
+    if (document.getElementById("WON")) {
         document.getElementById("WON").innerHTML = Resources.playerWon;
         document.getElementById("LOST").innerHTML = Resources.playerLost;
     }
@@ -81,20 +81,20 @@ Player.prototype.reset = function (fresh) {
 Player.prototype.render = function () {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
-Player.prototype.handleInput = function (key){
-    switch(key){
-        case 'left': 
-            this.x = this.x - 101 <= 0 ? 0 : this.x - 101;
-            break;
-        case 'up': 
-            this.y = this.y - 83 <= 0 ? 0 : this.y - 83;
-            break;
-        case 'right': 
-            this.x = this.x + 101 >= 505 ? (505-101) : this.x + 101;
-            break;
-        case 'down':
-            this.y = this.y + 83 + 171 >= 606 ? (606-171) : this.y + 83;
-            break;
+Player.prototype.handleInput = function (key) {
+    switch (key) {
+    case 'left':
+        this.x = this.x - 101 <= 0 ? 0 : this.x - 101;
+        break;
+    case 'up':
+        this.y = this.y - 83 <= 0 ? 0 : this.y - 83;
+        break;
+    case 'right':
+        this.x = this.x + 101 >= 505 ? (505 - 101) : this.x + 101;
+        break;
+    case 'down':
+        this.y = this.y + 83 + 171 >= 606 ? (606 - 171) : this.y + 83;
+        break;
     }
 }
 var player = new Player();
@@ -110,3 +110,70 @@ document.addEventListener('keyup', function (e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+if (window.navigator.msPointerEnabled) {
+    //Internet Explorer 10 style
+    this.eventTouchstart = "MSPointerDown";
+    this.eventTouchmove = "MSPointerMove";
+    this.eventTouchend = "MSPointerUp";
+} else {
+    this.eventTouchstart = "touchstart";
+    this.eventTouchmove = "touchmove";
+    this.eventTouchend = "touchend";
+}
+// Respond to swipe events
+var touchStartClientX, touchStartClientY;
+var gameContainer = document.getElementsByTagName("body")[0];
+
+gameContainer.addEventListener(this.eventTouchstart, function (event) {
+    if ((!window.navigator.msPointerEnabled && event.touches.length > 1) ||
+        event.targetTouches > 1 ||
+        targetIsInput(event)) {
+        return; // Ignore if touching with more than 1 finger or touching input
+    }
+
+    if (window.navigator.msPointerEnabled) {
+        touchStartClientX = event.pageX;
+        touchStartClientY = event.pageY;
+    } else {
+        touchStartClientX = event.touches[0].clientX;
+        touchStartClientY = event.touches[0].clientY;
+    }
+
+    event.preventDefault();
+});
+
+gameContainer.addEventListener(this.eventTouchmove, function (event) {
+    event.preventDefault();
+});
+
+gameContainer.addEventListener(this.eventTouchend, function (event) {
+    if ((!window.navigator.msPointerEnabled && event.touches.length > 0) ||
+        event.targetTouches > 0 ||
+        targetIsInput(event)) {
+        return; // Ignore if still touching with one or more fingers or input
+    }
+
+    var touchEndClientX, touchEndClientY;
+
+    if (window.navigator.msPointerEnabled) {
+        touchEndClientX = event.pageX;
+        touchEndClientY = event.pageY;
+    } else {
+        touchEndClientX = event.changedTouches[0].clientX;
+        touchEndClientY = event.changedTouches[0].clientY;
+    }
+
+    var dx = touchEndClientX - touchStartClientX;
+    var absDx = Math.abs(dx);
+
+    var dy = touchEndClientY - touchStartClientY;
+    var absDy = Math.abs(dy);
+
+    if (Math.max(absDx, absDy) > 10) {
+        // (right : left) : (down : up)
+       player.handleInput( absDx > absDy ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"));
+    }
+});
+var targetIsInput = function (event) {
+    return event.target.tagName.toLowerCase() === "input";
+};
